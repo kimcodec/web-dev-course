@@ -1,0 +1,27 @@
+{% extends '/base.html' %}
+
+{% block content %}
+<h1 class="mb-3">
+  <a href="{{url_for('furniture.redirect_back')}}">← Назад</a>
+</h1>
+
+<div class="col">
+  <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+    <div class="col-auto d-none d-lg-block">
+      <svg class="bd-placeholder-img" width="30em" height="40em" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em"></text></svg>
+    </div>
+    <div class="col p-4 d-flex flex-column position-static">
+      <h3 class="mb-0">{{furniture.name}}</h3>
+      <p class="p-1 card-text mb-auto">Описание: {{furniture.description}}</p>
+      <div class="d-flex justify-content-between align-items-center">
+        <p style="font-size: 2em">
+        {{furniture.price}} руб
+        </p>
+        <a class="p-1" href="{{ url_for('furniture.buy', furniture_id=furniture.id) }}">
+          <button type="button" class="btn btn-lg btn-outline-primary">Купить</button>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends '/base.html' %}
+
+{% from 'pagination.html' import pagination %}
+
+{% block content %}
+<h1 class="mb-3">Корзина</h1>
+<table class="table">
+    <thead>
+    <tr>
+        <th> Товар </th>
+        <th> Цена </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for fur in cart %}
+    <tr>
+        <td>{{ fur.name }}</td>
+        <td>{{ fur.price }}</td>
+
+        <td>
+            <a class="btn btn-primary" href="{{ url_for('furniture.view', furniture_id=fur.furniture_id) }}">Посмотреть товар</a>
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteFromCartModal" data-furniture-id="{{ fur.furniture_id }}">Удалить</button>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div class="d-flex align-items-start justify-content-between">
+    {% if cart %}
+    <a class="btn btn-primary" href="{{ url_for('cart.purchase') }}">Сделать заказ</a>
+    {% endif %}
+    {{ pagination(request.endpoint, page, page_count, pages) }}
+</div>
+
+
+
+<div class="modal fade" id="deleteFromCartModal" tabindex="-1" aria-labelledby="deleteFromCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteFromCartModalLabel">Удаление товара</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите удалить товар из корзины?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отменить</button>
+                <form method="post" id="deleteFromCartModalForm">
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='delete_from_cart_modal.js') }}"></script>
+{% endblock %}

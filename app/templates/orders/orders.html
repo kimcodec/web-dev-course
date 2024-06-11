@@ -1,0 +1,59 @@
+{% extends '/base.html' %}
+
+{% from 'pagination.html' import pagination %}
+
+{% block content %}
+<h1 class="mb-3">Заказы</h1>
+<table class="table">
+    <thead>
+    <tr>
+        <th> Номер заказа </th>
+        <th> Товары </th>
+        <th> Общая стоимость </th>
+        <th> Дата </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for order in orders %}
+    <tr>
+        <td>{{ order.id }}</td>
+        <td>
+            {{ order.furniture_name }}
+        </td>
+        <td>{{ order.total_price }}</td>
+        <td>{{ order.datetime }}</td>
+        <td>
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteOrderModal" data-order-id="{{ order.id }}">Удалить</button>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{{ pagination(request.endpoint, page, page_count, pages) }}
+
+<div class="modal fade" id="deleteOrderModal" tabindex="-1" aria-labelledby="deleteOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteOrderModalLabel">Удаление товара</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите удалить данный заказ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отменить</button>
+                <form method="post" id="deleteOrderModalForm">
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='delete_order_modal.js') }}"></script>
+{% endblock %}

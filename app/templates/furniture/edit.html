@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% from 'furniture/form.html' import furniture_form %}
+
+<h1 class="mb-3">Редактирование товара</h1>
+{{ furniture_form('edit', furniture_data) }}
+{% endblock %}

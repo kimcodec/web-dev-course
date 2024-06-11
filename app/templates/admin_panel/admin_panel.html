@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-2 container d-flex align-items-end">
+    <div class="px-1 w-100">
+        <label for="inputName">Название товара</label>
+        <input class="form-control" id="inputName" placeholder="Название товара" required type="text">
+    </div>
+    <div class="px-1">
+        <a class="btn btn-primary" onclick="submitAdminForm()">Найти</a>
+    </div>
+    <div class="">
+        <a class="btn btn-primary text-nowrap" href="{{ url_for('furniture.create')}}">Добавить товар</a>
+    </div>
+</div>
+<div class="container">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        {% for fur in furniture %}
+        <div class="col">
+            <div class="card shadow-sm">
+                <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h4>{{ fur.name }}</h4>
+                        <h5 class="text-body-primary">{{ fur.price }} руб</h5>
+                    </div>
+                    <div class="d-flex justify-content-end align-items-center">
+                        <div class="btn-group">
+                            <a class="p-1" href="{{ url_for('furniture.view', furniture_id=fur.id) }}">
+                                <button type="button" class="btn btn-md btn-outline-primary">Подробнее</button>
+                            </a>
+                            <a class="p-1" href="{{ url_for('furniture.update', furniture_id=fur.id) }}">
+                                <button type="button" class="btn btn-primary">Изменить</button>
+                            </a>
+                            <a class="p-1">
+                                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteFurnitureModal" data-furniture-id="{{ fur.id }}">Удалить</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="modal fade" id="deleteFurnitureModal" tabindex="-1" aria-labelledby="deleteFurnitureModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteFurnitureModalLabel">Удаление товара</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите удалить данный товар?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отменить</button>
+                <form method="post" id="deleteFurnitureModalForm">
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='delete_furniture.js') }}"></script>
+{% endblock %}
