@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS roles;
+
+DROP TABLE IF EXISTS orders_furniture;
+
+DROP TABLE IF EXISTS orders;
+
+DROP TABLE IF EXISTS carts;
+
+DROP TABLE IF EXISTS users;
+
+DROP TABLE IF EXISTS furniture;
+
+DROP TABLE IF EXISTS furniture_image;

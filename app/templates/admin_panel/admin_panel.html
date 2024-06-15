@@ -17,14 +17,14 @@
         {% for fur in furniture %}
         <div class="col">
             <div class="card shadow-sm">
-                <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
+                <img height="400" class="w-100" src="../../static/images/{{ fur.file_name }}" alt="товар">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <h4>{{ fur.name }}</h4>
                         <h5 class="text-body-primary">{{ fur.price }} руб</h5>
                     </div>
                     <div class="d-flex justify-content-end align-items-center">
-                        <div class="btn-group">
+                        <div class="btn-group flex-wrap">
                             <a class="p-1" href="{{ url_for('furniture.view', furniture_id=fur.id) }}">
                                 <button type="button" class="btn btn-md btn-outline-primary">Подробнее</button>
                             </a>
@@ -65,5 +65,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='delete_furniture.js') }}"></script>
+    <script src="{{ url_for('static', filename='submit_search_form.js') }}"></script>
+    <script src="{{ url_for('static', filename='delete_furniture.js') }}"></script>
 {% endblock %}

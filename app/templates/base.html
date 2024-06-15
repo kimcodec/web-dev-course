@@ -32,9 +32,11 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Магазин</a>
                     </li>
+                    {% if current_user.is_admin %}
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{{ url_for('admin_panel.index') }}">Панель администратора</a>
                     </li>
+                    {% endif %}
                     <li class="nav-item ms-auto mb-2 mb-lg-0">
                     </li>
                 </ul>

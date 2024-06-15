@@ -20,12 +20,22 @@ CREATE TABLE IF NOT EXISTS users(
 CREATE INDEX users_role_id
     ON users(role_id);
 
+CREATE TABLE IF NOT EXISTS furniture_image(
+    id SERIAL PRIMARY KEY,
+    file_name VARCHAR(255) NOT NULL,
+    mime_type VARCHAR(255) NOT NULL,
+    md5_hash VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS furniture(
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     price DECIMAL NOT NULL,
-    image bytea,
-    description TEXT
+    image_id INT,
+    description TEXT,
+    CONSTRAINT fk_furniture_image_id
+        FOREIGN KEY (image_id) REFERENCES furniture_image(id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS carts(

@@ -1,18 +1,45 @@
 import sys
+import hashlib
+import os
 
-from flask import Blueprint, render_template, flash, session, request, redirect, url_for
+from flask import Blueprint, render_template, flash, session, request, redirect, url_for, current_app
 from flask_login import current_user, login_required
 from auth import check_for_privelege
 from app import db_connector
 import psycopg
+from werkzeug.utils import secure_filename
 from psycopg.rows import namedtuple_row
 
 bp = Blueprint('furniture', __name__, url_prefix='/furniture')
 
 
+def save_furniture_image(cursor, image):
+    if image and image.filename != '':
+        filename = secure_filename(image.filename)
+        file_content = image.read()
+        md5_hash = hashlib.md5(file_content).hexdigest()
+        mime_type = image.mimetype
+
+        cursor.execute("""
+            INSERT INTO furniture_image(file_name, mime_type, md5_hash)
+            VALUES (%s, %s, %s) RETURNING id
+        """, (filename, mime_type, md5_hash,))
+        cover_id = cursor.fetchone().id
+
+        file_path = os.path.join('static/images', filename)
+
+        image.seek(0)
+        image.save(file_path)
+
+        return cover_id
+    return None
+
+
 def load_furniture(furniture_id):
     with db_connector.connect().cursor(row_factory=namedtuple_row) as cursor:
-        cursor.execute("SELECT * FROM furniture WHERE id = %s", (furniture_id,))
+        cursor.execute("SELECT furniture.id, name, price, description, file_name "
+                       "FROM furniture LEFT JOIN furniture_image "
+                       "ON furniture.image_id = furniture_image.id WHERE furniture.id = %s", (furniture_id,))
         furniture = cursor.fetchone()
         return furniture
 
@@ -20,7 +47,9 @@ def load_furniture(furniture_id):
 def load_all_furniture(name='', min_price=0, max_price=sys.maxsize):
     result = []
     with db_connector.connect().cursor(row_factory=namedtuple_row) as cursor:
-        cursor.execute('SELECT * FROM furniture WHERE price >= %s AND PRICE <= %s',
+        cursor.execute("SELECT furniture.id, name, price, description, file_name "
+                       "FROM furniture LEFT JOIN furniture_image "
+                       "ON furniture.image_id = furniture_image.id WHERE price >= %s AND price <= %s",
                        (min_price, max_price,))
         furniture = cursor.fetchall()
         for fur in furniture:
@@ -43,7 +72,7 @@ def redirect_back():
         return redirect(url_for('index'))
 
 
-@bp.route('/<int:furniture_id>/buy')
+@bp.route('/<int:furniture_id>/buy', methods=['GET', 'POST'])
 def buy(furniture_id):
     user_id = current_user.get_id()
     with db_connector.connect().cursor(row_factory=namedtuple_row) as cursor:
@@ -88,32 +117,43 @@ def create():
             return redirect(url_for('furniture.create'))
         with db_connector.connect().cursor(row_factory=namedtuple_row) as cursor:
             try:
-                cursor.execute("INSERT INTO furniture(name, price, description) VALUES (%s, %s, %s)",
-                               (furniture_data['name'], furniture_data['price'], furniture_data['description'],))
+                furniture_image = request.files.get('furniture-image')
+                image_id = save_furniture_image(cursor, furniture_image)
+
+                cursor.execute("INSERT INTO furniture(name, price, description, image_id) VALUES (%s, %s, %s, %s)",
+                               (furniture_data['name'], furniture_data['price'],
+                                furniture_data['description'], image_id,))
                 db_connector.connect().commit()
                 flash('Товар успешно добавлен', 'success')
-            except psycopg.DatabaseError:
+            except BaseException:
                 db_connector.connect().rollback()
                 flash('Произошла ошибка при создании товара', 'danger')
         return redirect(url_for('admin_panel.index'))
     return render_template('furniture/new.html')
 
+
 @bp.route('/<int:furniture_id>/edit', methods=['GET', 'POST'])
 @check_for_privelege('update')
 def update(furniture_id):
-    with db_connector.connect().cursor(row_factory=namedtuple_row) as cursor:
-        cursor.execute("SELECT * FROM furniture WHERE id = %s", (furniture_id,))
-        furniture_data = cursor.fetchone()
-        if furniture_data is None:
-            flash('Товара нет в базе данных', 'danger')
-            return redirect(url_for('admin_panel.index'))
-        if request.method == 'POST':
-            fields = ['name', 'price', 'description']
-            furniture_data = {field: request.form[field] or None for field in fields}
+    furniture_data = load_furniture(furniture_id)
+    if furniture_data is None:
+        flash('Товара нет в базе данных', 'danger')
+        return redirect(url_for('admin_panel.index'))
+    if request.method == 'POST':
+        fields = ['name', 'price', 'description']
+        furniture_data = {field: request.form[field] or None for field in fields}
+        with db_connector.connect().cursor(row_factory=namedtuple_row) as cursor:
             try:
                 cursor.execute("UPDATE furniture SET name = %s, price = %s, description = %s WHERE id = %s",
                                (furniture_data['name'], furniture_data['price'],
                                 furniture_data['description'], furniture_id,))
+
+                furniture_image = request.files.get('furniture-image')
+                if furniture_image:
+                    image_id = save_furniture_image(cursor, furniture_image)
+                    cursor.execute("UPDATE furniture SET image_id = %s WHERE id = %s",
+                                   (image_id, furniture_id,))
+
                 db_connector.connect().commit()
                 flash('Товар успешно изменен', 'success')
                 return redirect(url_for('admin_panel.index'))

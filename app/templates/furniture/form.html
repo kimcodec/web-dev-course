@@ -1,5 +1,5 @@
 {% macro furniture_form(action, furniture_data={}) %}
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     <div class="mb-3">
         <label for="name" class="form-label">Название товара</label>
         <input type="text" name="name" id="name" class="form-control" value="{{ furniture_data.name }}">
@@ -7,6 +7,10 @@
     <div class="mb-3">
         <label for="price" class="form-label">Цена</label>
         <input type="text" name="price" id="price" class="form-control" value="{{ furniture_data.price }}">
+    </div>
+    <div class="mb-3">
+        <label for="furniture-image" class="form-label">Выберите файл</label>
+        <input class="form-control" name="furniture-image" type="file" id="furniture-image">
     </div>
     <div class="mb-3">
         <label for="description" class="form-label">Описание</label>
